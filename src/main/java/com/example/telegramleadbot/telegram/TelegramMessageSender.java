@@ -230,17 +230,48 @@ public class TelegramMessageSender {
 
         sendText(chatId, message);
     }
+
     public void sendHelpMessage(Long chatId) {
         sendText(chatId, """
-            Этот бот помогает быстро оставить заявку.
-            
-            Что можно сделать:
-            /start — начать работу
-            /help — помощь
-            /stats — статистика для администратора
-            /last_leads — последние заявки для администратора
-            
-            После отправки заявки можно посмотреть demo-результат — как заявка выглядит для администратора.
-            """);
+                Этот бот помогает быстро оставить заявку.
+                
+                Что можно сделать:
+                /start — начать работу
+                /help — помощь
+                /stats — статистика для администратора
+                /last_leads — последние заявки для администратора
+                
+                После отправки заявки можно посмотреть demo-результат — как заявка выглядит для администратора.
+                """);
+    }
+
+    public void sendLastLeadsPage(Long chatId, String text, int currentPage, boolean hasNextPage) {
+        try {
+            SendMessage.SendMessageBuilder builder = SendMessage.builder()
+                    .chatId(chatId.toString())
+                    .text(text);
+
+            if (hasNextPage) {
+                builder.replyMarkup(
+                        InlineKeyboardMarkup.builder()
+                                .keyboard(List.of(
+                                        new InlineKeyboardRow(
+                                                InlineKeyboardButton.builder()
+                                                        .text("➡️ Следующие")
+                                                        .callbackData("leads_page:" + (currentPage + 1))
+                                                        .build()
+                                        )
+                                ))
+                                .build()
+                );
+            }
+
+            SendMessage sendMessage = builder.build();
+
+            telegramClient.execute(sendMessage);
+            log.info("Last leads page sent. chatId={}, page={}, hasNextPage={}", chatId, currentPage, hasNextPage);
+        } catch (Exception e) {
+            log.error("Failed to send last leads page. chatId={}, page={}", chatId, currentPage, e);
+        }
     }
 }

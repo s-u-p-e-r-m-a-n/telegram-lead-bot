@@ -72,7 +72,14 @@ public class TelegramUpdateHandler implements LongPollingUpdateConsumer {
 
             if ("/last_leads".equals(text)) {
                 if (chatId.equals(telegramBotProperties.getAdminChatId())) {
-                    telegramMessageSender.sendText(chatId, leadService.buildLastLeadsMessage());
+                    int page = 0;
+
+                    telegramMessageSender.sendLastLeadsPage(
+                            chatId,
+                            leadService.buildLastLeadsMessage(page),
+                            page,
+                            leadService.hasNextLeadsPage(page)
+                    );
                 }
                 return;
             }
@@ -147,6 +154,18 @@ public class TelegramUpdateHandler implements LongPollingUpdateConsumer {
             if ("show_demo_result".equals(callbackData)) {
                 UserSessionEntity session = userSessionService.getByChatId(chatId);
                 telegramMessageSender.sendDemoResultMessage(chatId, session);
+                return;
+            }
+            /** Processing the following buttons */
+            if (callbackData.startsWith("leads_page:")) {
+                int page = Integer.parseInt(callbackData.substring("leads_page:".length()));
+
+                telegramMessageSender.sendLastLeadsPage(
+                        chatId,
+                        leadService.buildLastLeadsMessage(page),
+                        page,
+                        leadService.hasNextLeadsPage(page)
+                );
                 return;
             }
 
