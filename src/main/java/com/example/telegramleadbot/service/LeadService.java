@@ -4,6 +4,8 @@ import com.example.telegramleadbot.entity.LeadEntity;
 import com.example.telegramleadbot.entity.UserSessionEntity;
 import com.example.telegramleadbot.repository.LeadRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -48,6 +50,41 @@ public class LeadService {
         }
 
         return sb.toString();
+    }
+
+    public String buildLastLeadsMessage(int page) {
+        int pageSize = 5;
+
+        // page — номер страницы, pageSize — сколько заявок показываем за раз
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        List<LeadEntity> leads = leadRepository.findByOrderByCreatedAtDesc(pageable);
+
+        if (leads.isEmpty()) {
+            return "Заявок на этой странице нет.";
+        }
+
+        StringBuilder sb = new StringBuilder("Последние заявки:\n\n");
+
+        for (LeadEntity lead : leads) {
+            sb.append("Услуга: ").append(lead.getRequestType().getDisplayName()).append("\n")
+                    .append("Имя: ").append(lead.getName()).append("\n")
+                    .append("Телефон: ").append(lead.getPhone()).append("\n")
+                    .append("Комментарий: ").append(lead.getDescription()).append("\n")
+                    .append("Дата: ").append(lead.getCreatedAt().format(DATE_TIME_FORMATTER)).append("\n\n");
+        }
+
+        return sb.toString();
+    }
+
+    public boolean hasNextLeadsPage(int page) {
+        int pageSize = 5;
+
+        Pageable nextPage = PageRequest.of(page + 1, pageSize);
+
+        List<LeadEntity> nextLeads = leadRepository.findByOrderByCreatedAtDesc(nextPage);
+
+        return !nextLeads.isEmpty();
     }
 
 }
