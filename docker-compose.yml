@@ -12,6 +12,29 @@ services:
       - "5432:5432"
     volumes:
       - telegram_lead_bot_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # BD readiness test
+      test: ["CMD-SHELL", "pg_isready -U postgres -d telegram_lead_bot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: telegram-lead-bot-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      ADMIN_CHAT_ID: ${ADMIN_CHAT_ID}
+      DB_URL: jdbc:postgresql://postgres:5432/telegram_lead_bot
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      STATS_CRON: ${STATS_CRON}
+    ports:
+      - "8080:8080"
 
 volumes:
   telegram_lead_bot_postgres_data:
+

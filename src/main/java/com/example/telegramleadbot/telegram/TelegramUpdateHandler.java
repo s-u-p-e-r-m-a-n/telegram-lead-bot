@@ -46,7 +46,7 @@ public class TelegramUpdateHandler implements LongPollingUpdateConsumer {
 
             log.info("Входящее сообщение. chatId={}, text={}", chatId, text);
             if (text.startsWith("/start")) {
-                log.info("Start command received from chatId={}", chatId);
+                log.info("Команда /start получена от chatId={}", chatId);
 
                 if (userSessionService.hasActiveSession(chatId)) {
                     telegramMessageSender.sendResumeOrRestartMessage(chatId);
