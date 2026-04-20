@@ -42,7 +42,7 @@ Telegram-бот для приема заявок и быстрой связи с
 ```env
 BOT_TOKEN=your_bot_token_here
 ADMIN_CHAT_ID=123456789
-DB_URL=jdbc:postgresql://localhost:5432/telegram_lead_bot
+DB_URL=jdbc:postgresql://postgres:5432/telegram_lead_bot
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 STATS_CRON=0 30 7 * * *
