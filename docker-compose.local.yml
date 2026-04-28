@@ -1,0 +1,19 @@
+#Отдельный docker-compose для локальной разработке, где требуется поднятие только базы
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: telegram-lead-bot-db-local
+    environment:
+      POSTGRES_DB: telegram_lead_bot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - telegram_lead_bot_postgres_local:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  telegram_lead_bot_postgres_local:
